@@ -1,5 +1,13 @@
 export interface Task {
     id: number;
     title: string;
-    completed: boolean;
+    isChecked: boolean;
+}
+
+export type Tabs = 'all' | 'completed' | 'pending'
+
+export interface TabItem {
+    id: Tabs;
+    tabTitle: string;
+    tabContent: string;
 }

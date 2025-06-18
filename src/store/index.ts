@@ -8,8 +8,9 @@ interface State {
 }
 let taskId = ref(0);
 
-function simulateApi<T>(data: T, delay = 500): Promise<T> {
-    return new Promise(resolve => setTimeout(() => resolve(data), delay))
+function simulateApi<T>(data: T): Promise<T> {
+    const timer = Math.floor(Math.random() * (800 - 200 + 1) + 200);
+    return new Promise(resolve => setTimeout(() => resolve(data), timer))
 }
 export default createStore<State>({
     state: {
@@ -59,9 +60,9 @@ export default createStore<State>({
         filteredTasks(state): Task[] {
             switch (state.filter) {
                 case 'completed':
-                    return state.tasks.filter(t => t.isChecked)
+                    return state.tasks.filter(task => task.isChecked)
                 case 'pending':
-                    return state.tasks.filter(t => !t.isChecked)
+                    return state.tasks.filter(task => !task.isChecked)
                 default:
                     return state.tasks
             }

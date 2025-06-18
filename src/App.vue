@@ -1,56 +1,66 @@
 <script setup lang="ts">
 import Item from "@/components/Item.vue";
-import {useStore} from "vuex";
-import {onMounted, ref, watch} from "vue";
-import {computed} from "@vue/runtime-dom";
-import { Task } from './types'
+import { useStore } from "vuex";
+import { onMounted, ref, watch } from "vue";
+import { computed } from "@vue/runtime-dom";
+import { TabItem, Tabs, Task } from "./types";
 
+const store = useStore();
+const newTask = ref("");
 
-const store = useStore()
-const newTask = ref('')
+// const tabs = ['all', 'completed', 'pending']
+const tabs: TabItem[] = [
+  { id: "all", tabTitle: "Все", tabContent: "Все задачи" },
+  {
+    id: "completed",
+    tabTitle: "Выполненные",
+    tabContent: "Выполненные задачи",
+  },
+  {
+    id: "pending",
+    tabTitle: "Невыполненные",
+    tabContent: "Невыполненные задачи",
+  },
+];
+// const tabTitles: Record<string, string> = {
+//   all: 'Все',
+//   completed: 'Выполненные',
+//   pending: 'Невыполненные'
+// }
 
-const tabs = ['all', 'completed', 'pending']
-const tabTitles: Record<string, string> = {
-  all: 'Все',
-  completed: 'Выполненные',
-  pending: 'Невыполненные'
-}
-
-const activeTab = ref<'all' | 'completed' | 'pending'>('all')
+const activeTab = ref<Tabs>("all");
 
 watch(activeTab, (newTab) => {
-  store.state.filter = newTab
-})
+  store.state.filter = newTab;
+});
 
-const tasks = computed(() => store.getters.filteredTasks as Task[])
+const tasks = computed(() => store.getters.filteredTasks as Task[]);
 
 onMounted(() => {
-  store.dispatch('loadTasks')
-})
+  store.dispatch("loadTasks");
+});
 function addTask() {
-  if (newTask.value.trim() !== '') {
-    store.dispatch('addItem', newTask.value.trim())
-    newTask.value = ''
+  if (newTask.value.trim() !== "") {
+    store.dispatch("addItem", newTask.value.trim());
+    newTask.value = "";
   }
 }
-function removeTask(id: number){
-  store.dispatch('deleteTask', id)
+function removeTask(id: number) {
+  store.dispatch("deleteTask", id);
 }
-
 </script>
-
 
 <template>
   <div class="wrapper">
     <div class="tabs">
       <div class="tab-buttons">
         <button
-            v-for="tab in tabs"
-            :key="tab"
-            :class="{ active: tab === activeTab }"
-            @click="activeTab = tab"
+          v-for="tab in tabs"
+          :key="tab.id"
+          :class="{ active: tab.id === activeTab }"
+          @click="activeTab = tab.id"
         >
-          {{ tabTitles[tab] }}
+          {{ tab.tabTitle }}
         </button>
       </div>
 
@@ -61,26 +71,22 @@ function removeTask(id: number){
       </div>
     </div>
     <div class="inprocess">
-        <ul>
-          <li
-              class="list-item"
-              v-for="task in tasks"
-              :key="task.id"
-          >
-            <Item
-                :task="task"
-                @delete-item="removeTask"
-                @sendCheckboxState="store.dispatch('changeCheckboxState', $event)"
-            />
-          </li>
-        </ul>
+      <ul>
+        <li class="list-item" v-for="task in tasks" :key="task.id">
+          <Item
+            :task="task"
+            @delete-item="removeTask"
+            @sendCheckboxState="store.dispatch('changeCheckboxState', $event)"
+          />
+        </li>
+      </ul>
     </div>
     <button @click="addTask" class="addbutton">Добавить заметку</button>
     <input
-        v-model="newTask"
-        type="text"
-        class="edit-input"
-        placeholder="Введите вашу заметку"
+      v-model="newTask"
+      type="text"
+      class="edit-input"
+      placeholder="Введите вашу заметку"
     />
   </div>
 </template>

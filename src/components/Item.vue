@@ -2,16 +2,13 @@
 import {defineProps, ref} from 'vue'
 import { Task } from '/src/types.ts'
 
-const props =defineProps<{
+const props = defineProps<{
   task: Task
 }>()
 
 const emit = defineEmits(['deleteItem', 'sendCheckboxState'])
 function removeItem(id){
   emit('deleteItem', props.task.id)
-}
-function sendCheckboxState(){
-  emit('sendCheckboxState', { id: props.task.id, completed: checkedState.value })
 }
 
 function handleCheckboxChange(event: Event) {
