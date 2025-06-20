@@ -1,41 +1,39 @@
 <script setup lang="ts">
-import {defineProps, ref} from 'vue'
-import { Task } from '/src/types.ts'
+import { defineProps, ref } from "vue";
+import { Task } from "/src/types.ts";
 
 const props = defineProps<{
-  task: Task
-}>()
+  task: Task;
+}>();
 
-const emit = defineEmits(['deleteItem', 'sendCheckboxState'])
-function removeItem(id){
-  emit('deleteItem', props.task.id)
+const emit = defineEmits(["deleteItem", "sendCheckboxState"]);
+function removeItem(id) {
+  emit("deleteItem", props.task.id);
 }
 
 function handleCheckboxChange(event: Event) {
-  const target = event.target as HTMLInputElement
-  emit('sendCheckboxState', { id: props.task.id, status: target.checked })
+  const target = event.target as HTMLInputElement;
+  emit("sendCheckboxState", { id: props.task.id, status: target.checked });
 }
 </script>
 
 <template>
-  <p  class="big">{{ task.title }}</p>
+  <p class="big">{{ task.title }}</p>
 
   <form>
     <input
-        type="checkbox"
-        id="checkbox"
-        class="edit-input"
-        :checked="task.isChecked"
-        @change="handleCheckboxChange"
+      type="checkbox"
+      id="checkbox"
+      class="edit-input"
+      :checked="task.isChecked"
+      @change="handleCheckboxChange"
     />
-    <label>Done</label>
+    <label>Сделано</label>
   </form>
   <button @click="removeItem()" class="delete">Delete</button>
-
 </template>
 
 <style>
-
 .big {
   width: 180px;
   height: 30px;
@@ -57,5 +55,4 @@ function handleCheckboxChange(event: Event) {
   border: 1px solid #5b5b5b;
   border-radius: 5px;
 }
-
 </style>

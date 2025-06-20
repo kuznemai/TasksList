@@ -17,6 +17,7 @@
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/runtime-dom": "^3.5.16",
     "@vue/tsconfig": "^0.7.0",
+    "sass": "^1.89.2",
     "typescript": "^5.8.3",
     "vite": "^6.2.4",
     "vite-plugin-vue-devtools": "^7.7.2",
