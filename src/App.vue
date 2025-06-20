@@ -8,7 +8,6 @@ import { TabItem, Tabs, Task } from "./types";
 const store = useStore();
 const newTask = ref("");
 
-// const tabs = ['all', 'completed', 'pending']
 const tabs: TabItem[] = [
   { id: "all", tabTitle: "Все", tabContent: "Все задачи" },
   {
@@ -22,11 +21,6 @@ const tabs: TabItem[] = [
     tabContent: "Невыполненные задачи",
   },
 ];
-// const tabTitles: Record<string, string> = {
-//   all: 'Все',
-//   completed: 'Выполненные',
-//   pending: 'Невыполненные'
-// }
 
 const activeTab = ref<Tabs>("all");
 
@@ -34,17 +28,24 @@ watch(activeTab, (newTab) => {
   store.state.filter = newTab;
 });
 
+const activeTabContent = computed(() => {
+  const current = tabs.find((tab) => tab.id === activeTab.value);
+  return current?.tabContent || "";
+});
+
 const tasks = computed(() => store.getters.filteredTasks as Task[]);
 
 onMounted(() => {
   store.dispatch("loadTasks");
 });
+
 function addTask() {
   if (newTask.value.trim() !== "") {
     store.dispatch("addItem", newTask.value.trim());
     newTask.value = "";
   }
 }
+
 function removeTask(id: number) {
   store.dispatch("deleteTask", id);
 }
@@ -65,9 +66,17 @@ function removeTask(id: number) {
       </div>
 
       <div class="tab-content">
-        <div v-if="activeTab === 'all'">Все задачи</div>
-        <div v-else-if="activeTab === 'completed'">Выполненные задачи</div>
-        <div v-else-if="activeTab === 'pending'">Невыполненные задачи</div>
+        <div>{{ activeTabContent }}</div>
+      </div>
+
+      <div class="note_adding_block">
+        <input
+          v-model="newTask"
+          type="text"
+          class="edit-input"
+          placeholder="Введите вашу заметку"
+        />
+        <button @click="addTask" class="addbutton">Добавить заметку</button>
       </div>
     </div>
     <div class="inprocess">
@@ -81,95 +90,130 @@ function removeTask(id: number) {
         </li>
       </ul>
     </div>
-    <button @click="addTask" class="addbutton">Добавить заметку</button>
-    <input
-      v-model="newTask"
-      type="text"
-      class="edit-input"
-      placeholder="Введите вашу заметку"
-    />
   </div>
 </template>
 
-<style>
+<style lang="scss">
+$primary-color: #757575;
+$secondary-color: #f0f0f0;
+$text-color: #333;
+$bg-color: #ffffff;
+$accent-color: #e0e0e0;
+$border-radius: 12px;
+$spacing: 16px;
+$font-size: 16px;
+$transition: 0.2s ease-in-out;
+
 .wrapper {
   width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: $spacing;
+  font-family: "Segoe UI", sans-serif;
+  background-color: $bg-color;
+  color: $text-color;
+}
+
+.tabs {
+  margin-bottom: $spacing * 1.5;
+
+  .tab-buttons {
+    display: flex;
+    gap: $spacing;
+    margin-bottom: $spacing;
+
+    button {
+      flex: 1;
+      padding: 10px 20px;
+      border: none;
+      background-color: $accent-color;
+      color: $text-color;
+      border-radius: $border-radius;
+      cursor: pointer;
+      transition: background-color $transition;
+
+      &:hover {
+        background-color: darken($accent-color, 5%);
+      }
+
+      &.active {
+        background-color: $primary-color;
+        color: white;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .tab-content {
+    margin-bottom: $spacing;
+    font-size: $font-size;
+    padding: 8px 0;
+  }
+
+  .note_adding_block {
+    display: flex;
+    gap: $spacing;
+    flex-wrap: wrap;
+
+    input.edit-input {
+      flex: 1;
+      padding: 10px;
+      font-size: $font-size;
+      border: 1px solid #ccc;
+      border-radius: $border-radius;
+      transition: border-color $transition;
+
+      &:focus {
+        border-color: $primary-color;
+        outline: none;
+      }
+    }
+
+    .addbutton {
+      padding: 10px 20px;
+      background-color: $primary-color;
+      color: white;
+      border: none;
+      border-radius: $border-radius;
+      font-size: $font-size;
+      cursor: pointer;
+      transition: background-color $transition;
+
+      &:hover {
+        background-color: darken($primary-color, 5%);
+      }
+    }
+  }
 }
 
 .inprocess {
-  width: 95%;
-  gap: 10px;
-}
+  margin-top: $spacing;
 
-.list-item {
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  width: 200px;
-  height: 300px;
-  border: 1px solid #000000;
-  border-radius: 20px;
-  gap: 20px;
-  list-style-type: none;
-  margin-bottom: 15px;
-}
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing;
+    padding: 0;
+    margin: 0;
 
-.items_list {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 15px;
-  padding-bottom: 50px;
-  border-bottom: 5px dashed grey;
-  height: 350px;
-}
+    .list-item {
+      flex: 1 1 calc(33% - #{$spacing});
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: $spacing;
+      min-width: 220px;
+      background-color: $secondary-color;
+      border-radius: $border-radius;
+      list-style: none;
+      border: 1px solid #ddd;
+      transition: box-shadow $transition;
+      gap: 10px;
 
-.right_list {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 15px;
-  height: 350px;
-}
-
-.header_title {
-  font-size: 24px;
-  width: 100%;
-  height: 40px;
-}
-
-.done {
-  width: 45%;
-}
-
-.addbutton {
-  width: 150px;
-  height: 40px;
-  background-color: #17880f;
-  border-radius: 10px;
-  color: beige;
-  font-size: 16px;
-  margin: 20px;
-}
-
-.tab-buttons {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.tab-buttons button {
-  padding: 8px 16px;
-  border: 1px solid #ccc;
-  background: #eee;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.tab-buttons button.active {
-  background-color: #17880f;
-  color: white;
-  font-weight: bold;
+      &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+    }
+  }
 }
 </style>
